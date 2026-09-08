@@ -1,5 +1,7 @@
 import { schemas, wikiEntities, editableEntities, emptyData, allowed, validate, deletionError, orderTotal, stampRecord } from './shared/model.js';
 import { createDemo } from './demo.js';
+import { extraCharts } from './charts.js';
+import { validateAttachments, MAX_FILE_BYTES, ATTACHMENT_TYPES } from './shared/attachments.js';
 
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
@@ -13,6 +15,8 @@ const apiBase = String(config.apiBaseUrl || '').replace(/\/$/,'');
 let data = emptyData(), user = null, demo = false, cityId = '', route = 'dashboard', token = sessionStorage.getItem('bh-session') || '';
 let filters = { query:'',status:'',role:'',sort:'newest',overdue:false,from:'',to:'',days:30 };
 let editing = null, refreshTimer, toastTimer;
+const expandedCategories = new Set();
+const noteDrafts = new Map();
 const label = (entity,id) => data[entity].find(row => row.id === id)?.name || '—';
 const can = entity => demo || allowed(user,entity,data);
 const rowsInCity = entity => data[entity].filter(row => !row.cityId || !cityId || row.cityId === cityId);
@@ -46,16 +50,16 @@ function showApp() {
   navigation();updateCities();navigate();
   $('#menuToggle').setAttribute('aria-expanded',String(window.innerWidth>760));
   clearInterval(refreshTimer);
-  if (!demo) refreshTimer=setInterval(async()=>{try { const result=await api('/api/data');data=result.data;user=result.user;updateCities();if(!$('#editor').open&&!$('#confirmDialog').open)render(); } catch(error){toast(error.message);}},30000);
+  if (!demo) refreshTimer=setInterval(async()=>{try { const result=await api('/api/data');data=result.data;user=result.user;updateCities();if(!$('#editor').open&&!$('#confirmDialog').open&&!document.activeElement?.matches('[data-notes]'))render(); } catch(error){toast(error.message);}},30000);
 }
 function showLogin() {
   clearInterval(refreshTimer);$('#loginView').hidden=false;$('#dashboardView').hidden=true;$('#editor').close();$('#confirmDialog').close();user=null;data=emptyData();
 }
 function navigate() {
   const requested=location.hash.slice(1);route=requested==='wiki'?'docs':requested;
-  if (route!=='dashboard'&&!schemas[route]) route='dashboard';
+  if (route!=='dashboard'&&(!schemas[route]||['docs','divulgacoes'].includes(route))) route='dashboard';
   if (route==='usuarios'&&!user?.admin) route='dashboard';
-  filters={query:'',status:'',role:'',sort:'newest',overdue:false,from:'',to:'',days:30};
+  filters={query:'',status:'',role:'',sort:wikiEntities.includes(route)?'name':'newest',overdue:false,from:'',to:'',days:30};
   if (user) render();
 }
 function heading(title,description,actions='') { return `<div class="page-heading"><div><h1 tabindex="-1">${esc(title)}</h1><p>${esc(description)}</p></div><div class="heading-actions">${actions}</div></div>`; }
@@ -80,6 +84,7 @@ function filterBar() {
 }
 function rowsView() {
   const rows=filtered(route);
+  if (wikiEntities.includes(route)) return categoryView(rows);
   if (route==='pedidos') return table(['Status','Família','Responsável','Itens','Valor','Prazo','Criado','Concluído','Ações'],rows.map(row=>[badge(row.status),esc(label('familias',row.familyId)),`${esc(label('responsaveis',row.responsibleId))}<small>${esc(data.responsaveis.find(r=>r.id===row.responsibleId)?.phone || '')}</small>`,`${row.quantity}<small>${esc(label('produtos',row.productId))}</small>`,money(orderTotal(row)),esc(date(row.deadline)),`${esc(date(row.createdAt))}<small>${esc(row.createdBy)}</small>`,esc(date(row.completedAt)),actions(row)]));
   if (route==='lavagem') return table(['Status','Criado em','Nome','Valor bruto','Valor final','Tipo','Registrado por','Finalizado em','Ações'],rows.map(row=>[badge(row.status),esc(date(row.createdAt)),esc(row.name),money(row.gross),money(row.gross*(1-row.rate/100)),badge(row.type),esc(row.createdBy),esc(date(row.completedAt)),actions(row)]));
   if (route==='usuarios') return table(['Usuário','@ Discord','Cargo','Cidade','Status','Ações'],rows.map(row=>[`${esc(row.name)} ${row.admin?badge('Admin'):''}<small>${esc(row.email)}</small>`,`${esc(row.discordName || row.discordId)}<small>${esc(row.discordId)}</small>`,badge(label('cargos',row.roleId)),esc(label('cidades',row.cityId)),badge(row.active?'Ativo':'Inativo'),actions(row)]));
@@ -98,7 +103,7 @@ function dashboard() {
   const completed=orders.filter(row=>row.status==='Concluído');const total=completed.reduce((sum,row)=>sum+orderTotal(row),0);const commission=completed.reduce((sum,row)=>sum+orderTotal(row)*row.commissionRate/100,0);
   const hours=completed.length?completed.reduce((sum,row)=>sum+Math.max(0,(new Date(row.completedAt)-new Date(row.createdAt))/3600000),0)/completed.length:0;
   const metrics=[['Receita total',money(total),'precos'],['Pedidos',orders.length,'pedidos'],['Concluídos',completed.length,'check'],['Ticket médio',money(completed.length?total/completed.length:0),'precos'],['Comissão total',money(commission),'lavagem'],['Líquido das vendas',money(total-commission),'lavagem'],['Taxa de conclusão',`${orders.length?Math.round(completed.length/orders.length*100):0}%`,'check'],['Tempo médio de entrega',completed.length?`${Math.floor(hours/24)}d ${Math.round(hours%24)}h`:'—','clock']];
-  return heading('Dashboard',`Dados gerais de venda — ${label('cidades',cityId)}`,`<label class="filter-label">De<input type="date" data-filter="from" value="${filters.from}"></label><label class="filter-label">Até<input type="date" data-filter="to" value="${filters.to}"></label>${[7,30,90].map(days=>`<button class="button ${filters.days===days&&!filters.from&&!filters.to?'selected':''}" data-days="${days}">${days} dias</button>`).join('')}`)+`<section class="metric-grid" aria-label="Indicadores">${metrics.map(([title,value,key])=>`<article class="metric-card"><span>${title}</span>${icon(key)}<strong>${value}</strong></article>`).join('')}</section><section class="chart-grid"><article class="panel"><h2>Evolução no tempo</h2><p>Receita concluída e pedidos por dia</p>${lineChart(orders,start,end)}<div class="chart-legend"><span><i class="legend-dot" style="background:#22c55e"></i>Receita (eixo esquerdo)</span><span><i class="legend-dot" style="background:#4b8eea"></i>Pedidos (eixo direito)</span></div></article><article class="panel"><h2>Vendas por produto</h2><p>Receita dos pedidos concluídos no período</p>${productChart(completed)}</article></section>`;
+  return heading('Dashboard',`Dados gerais de venda — ${label('cidades',cityId)}`,`<label class="filter-label">De<input type="date" data-filter="from" value="${filters.from}"></label><label class="filter-label">Até<input type="date" data-filter="to" value="${filters.to}"></label>${[7,30,90].map(days=>`<button class="button ${filters.days===days&&!filters.from&&!filters.to?'selected':''}" data-days="${days}">${days} dias</button>`).join('')}`)+`<section class="metric-grid" aria-label="Indicadores">${metrics.map(([title,value,key])=>`<article class="metric-card"><span>${title}</span>${icon(key)}<strong>${value}</strong></article>`).join('')}</section><section class="chart-grid"><article class="panel"><h2>Evolução no tempo</h2><p>Receita concluída e pedidos por dia</p>${lineChart(orders,start,end)}<div class="chart-legend"><span><i class="legend-dot" style="background:#22c55e"></i>Receita (eixo esquerdo)</span><span><i class="legend-dot" style="background:#4b8eea"></i>Pedidos (eixo direito)</span></div></article><article class="panel"><h2>Vendas por produto</h2><p>Receita dos pedidos concluídos no período</p>${productChart(completed)}</article></section>`+extraCharts(orders,data.familias);
 }
 function lineChart(orders,start,end) {
   const count=Math.min(366,Math.max(2,Math.ceil((end-start)/86400000)));
@@ -117,7 +122,56 @@ function render() {
   const summary=route==='pedidos'?`<div class="summary-grid">${[['Orçamento','Orçamentos','amber'],['Em preparação','Em preparação','blue'],['Concluído','Concluídos','green']].map(([status,title,color])=>`<div class="summary-card ${color}">${title}<strong>${rowsInCity('pedidos').filter(row=>row.status===status).length}</strong></div>`).join('')}</div>`:'';
   $('#pageContent').innerHTML=heading(schemas[route].title,schemas[route].description,`${route==='pedidos'?'<button class="button" data-action="materials">'+icon('produtos')+'Materiais totais</button>':''}${newButton()}`)+summary+filterBar()+`<div id="records">${rowsView()}</div>`;
 }
+function categoryView(rows) {
+  return `<div class="category-list">${rows.length?rows.map(row=>`<details class="category" data-category="${esc(row.id)}" ${expandedCategories.has(route+':'+row.id)?'open':''}><summary><span class="category-mark">${icon(route==='valores'?'usuarios':'cargos')}</span><span class="category-title">${esc(row.name)}</span>${route==='investigativa'?`<span class="category-meta">${(row.attachments||[]).length} anexo(s)</span>`:''}</summary><div class="category-content">${row.description?`<p class="category-text">${esc(row.description)}</p>`:route==='valores'?'<p class="muted">Nenhum texto cadastrado nesta categoria.</p>':''}${route==='investigativa'?investigationFields(row):''}<footer class="category-footer">${actions(row)}</footer></div></details>`).join(''):'<div class="panel empty-state"><strong>Nenhuma categoria cadastrada</strong>Crie uma categoria para organizar os conteúdos.</div>'}</div>`;
+}
+function investigationFields(row) {
+  row={...row,observations:noteDrafts.get(row.id) ?? row.observations};
+  const editable=can('investigativa');
+  return `<section class="investigation-notes"><label for="notes-${esc(row.id)}">Observações</label><textarea id="notes-${esc(row.id)}" data-notes="${esc(row.id)}" maxlength="10000" placeholder="Escreva as observações desta categoria…" ${editable?'':'readonly'}>${esc(row.observations || '')}</textarea>${editable?`<button class="button primary" data-action="save-notes" data-id="${esc(row.id)}">Salvar observações</button>`:''}</section><section class="category-attachments"><div class="attachments-heading"><h3>Anexos</h3>${editable?`<label class="button" for="upload-${esc(row.id)}">＋ Adicionar anexo</label><input class="attachment-input" id="upload-${esc(row.id)}" data-upload="${esc(row.id)}" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.txt" multiple>`:''}</div><p class="field-hint">PNG, JPG, WebP, PDF ou TXT · até 2 MB por arquivo · 5 anexos por categoria</p><div class="attachment-list">${(row.attachments||[]).length?(row.attachments||[]).map(file=>`<div class="attachment-row"><span>${icon('pedidos')}</span><div><strong>${esc(file.name)}</strong><small>${(file.size/1024).toFixed(1)} KB</small></div><button class="button" data-action="download-attachment" data-id="${esc(row.id)}" data-file="${esc(file.id)}" aria-label="Baixar ${esc(file.name)}">Baixar</button>${editable?`<button class="icon-button" data-action="remove-attachment" data-id="${esc(row.id)}" data-file="${esc(file.id)}" aria-label="Remover ${esc(file.name)}">×</button>`:''}</div>`).join(''):'<p class="muted">Nenhum anexo nesta categoria.</p>'}</div></section>`;
+}
+async function uploadAttachments(input) {
+  const row=data.investigativa.find(item=>item.id===input.dataset.upload);if(!row||!input.files.length)return;
+  const observations=document.getElementById('notes-'+row.id)?.value ?? row.observations ?? '';
+  input.disabled=true;
+  try {
+    const files=await Promise.all([...input.files].map(async file=>{
+      const type=file.type || (file.name.toLowerCase().endsWith('.txt')?'text/plain':'');
+      if(file.size>MAX_FILE_BYTES)throw new Error('Cada arquivo deve ter no máximo 2 MB.');
+      if(!ATTACHMENT_TYPES.includes(type))throw new Error('Use arquivos PNG, JPG, WebP, PDF ou TXT.');
+      const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('Não foi possível ler o arquivo.'));reader.readAsDataURL(new Blob([file],{type}));});
+      return {id:crypto.randomUUID(),name:file.name,type,size:file.size,data:encoded};
+    }));
+    const attachments=validateAttachments([...(row.attachments||[]),...files]);
+    await save('investigativa',{...row,observations,attachments},row.id);toast('Anexo salvo na categoria.');
+  } catch(error){toast(error.name==='QuotaExceededError'?'O armazenamento da demonstração está cheio. Remova anexos ou use arquivos menores.':error.message);}finally{input.disabled=false;input.value='';}
+}
+function downloadAttachment(row,id) {
+  const file=(row.attachments||[]).find(item=>item.id===id);if(!file)throw new Error('Anexo não encontrado.');
+  validateAttachments([file]);const bytes=Uint8Array.from(atob(file.data.split(',')[1]),char=>char.charCodeAt(0));
+  const url=URL.createObjectURL(new Blob([bytes],{type:'application/octet-stream'}));
+  const a=document.createElement('a');a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);
+}
+$('#pageContent').addEventListener('toggle',event=>{if(!event.target.matches('details[data-category]'))return;const key=route+':'+event.target.dataset.category;if(event.target.open)expandedCategories.add(key);else if(event.target.isConnected)expandedCategories.delete(key);},true);
+$('#pageContent').addEventListener('change',event=>{if(event.target.dataset.upload)uploadAttachments(event.target);});
+$('#pageContent').addEventListener('input',event=>{if(event.target.dataset.notes)noteDrafts.set(event.target.dataset.notes,event.target.value);});
+$('#pageContent').addEventListener('click',async event=>{
+  const button=event.target.closest('button');if(!button||!['save-notes','download-attachment','remove-attachment'].includes(button.dataset.action))return;
+  const row=data.investigativa.find(item=>item.id===button.dataset.id);if(!row)return;
+  try{
+    if(button.dataset.action==='download-attachment'){downloadAttachment(row,button.dataset.file);return;}
+    if(!can('investigativa'))throw new Error('Sem permissão para editar esta categoria.');
+    const observations=document.getElementById('notes-'+row.id)?.value ?? row.observations ?? '';
+    let attachments=row.attachments||[];
+    if(button.dataset.action==='remove-attachment'){
+      if(!await confirmAction('Remover este anexo da categoria?','Remover anexo','Remover'))return;
+      attachments=attachments.filter(file=>file.id!==button.dataset.file);
+    }
+    button.disabled=true;await save('investigativa',{...row,observations,attachments},row.id);toast(button.dataset.action==='save-notes'?'Observações salvas.':'Anexo removido.');
+  }catch(error){toast(error.message);}finally{button.disabled=false;}
+});
 function fieldHtml(field, row) {
+  if(field.type==='attachments')return '<p class="field-hint">Adicione e gerencie os anexos ao expandir a categoria.</p>';
   const value=row[field.key] ?? (field.key==='cityId'?cityId:field.key==='active'?true:field.key==='quantity'?1:field.key==='commissionRate'?5:'');
   const attrs=`id="field-${field.key}" name="${field.key}" ${field.required?'required':''}`;
   if(field.type==='checkbox') return `<label class="field checkbox-field"><input type="checkbox" name="${field.key}" ${value?'checked':''}>${field.label}</label>`;
@@ -145,6 +199,7 @@ async function save(entity,input,id) {
     localStorage.setItem('bh-demo-v2',JSON.stringify(next));data=next;
     if(entity==='usuarios'&&id===user.id)user=record;
   } else { await api(`/api/${entity}${id?'/'+encodeURIComponent(id):''}`,{method:id?'PUT':'POST',body:JSON.stringify(input)});const result=await api('/api/data');data=result.data;user=result.user; }
+  if(entity==='investigativa')noteDrafts.delete(id);
   updateCities();render();
 }
 async function remove(id) {
@@ -173,7 +228,7 @@ $('#editorForm').addEventListener('change',event=>{
   const price=data.precos.find(row=>row.cityId===form.elements.cityId.value&&row.productId===form.elements.productId.value);
   if(price)form.elements.unitPrice.value=family?.partner?price.partner:price.normal;
 });
-$('#editorForm').addEventListener('submit',async event=>{event.preventDefault();if(!editing)return;const button=$('#saveButton');button.disabled=true;$('#formError').textContent='';try {const form=new FormData(event.currentTarget);const input={};for(const field of schemas[editing.entity].fields)input[field.key]=field.type==='checkbox'?form.has(field.key):field.type==='permissions'?form.getAll(field.key):form.get(field.key);await save(editing.entity,input,editing.id);$('#editor').close();toast('Registro salvo.');}catch(error){$('#formError').textContent=error.message;}finally{button.disabled=false;}});
+$('#editorForm').addEventListener('submit',async event=>{event.preventDefault();if(!editing)return;const button=$('#saveButton');button.disabled=true;$('#formError').textContent='';try {const form=new FormData(event.currentTarget);const input={};for(const field of schemas[editing.entity].fields)input[field.key]=field.type==='checkbox'?form.has(field.key):field.type==='permissions'?form.getAll(field.key):field.type==='attachments'?(data[editing.entity].find(row=>row.id===editing.id)?.attachments || []):form.get(field.key);await save(editing.entity,input,editing.id);$('#editor').close();toast('Registro salvo.');}catch(error){$('#formError').textContent=error.message;}finally{button.disabled=false;}});
 $('#closeEditor').onclick=()=>$('#editor').close();
 $('#citySelect').onchange=event=>{cityId=event.target.value;render();};
 $('#menuToggle').onclick=()=>{if(window.innerWidth<=760){const open=$('#sidebar').classList.toggle('mobile-open');$('#menuToggle').setAttribute('aria-expanded',String(open));}else{const collapsed=document.body.classList.toggle('sidebar-collapsed');$('#menuToggle').setAttribute('aria-expanded',String(!collapsed));}};

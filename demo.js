@@ -16,8 +16,8 @@ export function createDemo() {
   data.configurar = [{id:'action-type-1',name:'Reunião da família',participants:10,description:'Alinhamento das atividades de roleplay.'}];
   data.acoes = [{id:'action-1',name:'Reunião semanal',cityId:'city-1',actionId:'action-type-1',scheduledAt:ago(-2).slice(0,16),status:'Agendada',description:'Organização dos próximos pedidos e atividades.'}];
   data.avisos = [{id:'notice-1',name:'Bem-vindo ao sistema Blackhearts',cityId:'city-1',description:'Este ambiente é uma demonstração com registros fictícios. Explore as abas, cadastre pedidos e acompanhe os indicadores. Os dados desta demonstração ficam somente no seu navegador.',createdAt:ago(0),createdBy:'Blackhearts'}];
-  data.divulgacoes=[{id:'wiki-1',name:'Identidade Blackhearts',description:'Utilize o nome Blackhearts nas comunicações da família. Cadastre aqui os textos de divulgação aprovados.'}];
-  data.docs=[{id:'wiki-2',name:'Como registrar um pedido',description:'1. Cadastre a família e o responsável.\n2. Confira o produto e o preço da cidade.\n3. Abra Pedidos e selecione Novo pedido.\n4. Ao entregar no roleplay, marque o pedido como concluído.'}];
-  data.valores=[{id:'wiki-3',name:'Parcerias e tabela de preços',description:'Os valores de demonstração podem ser consultados em Preços por cidade. Registre aqui as regras de parceria da sua organização.'}];
+  data.valores = ['AURA 🟣 ⚫','BALLAS 🟣','CARTEL ⚪','FAMILIES 🟢','HELLS ANGELS','HYDRA 🔴','MERAKI 🟡 ⚪','NOX 🔴','VENDETTA','VOID 🔵'].map((name,i)=>({id:`value-${i}`,name,description:i===0?'1. PT:\n   M19 - 30k\n   Ati - 46.5k (só faz com up)\n\n2. Munição:\n   PT - 90un\n   SUB - 120un\n   FUZIL - 165un\n\n3. Droga:\n   Crack - preço da mesa':'Cadastre aqui os acordos e valores desta família.'}));
+  data.investigativa = ['Pessoas','Veículos','Locais','Ocorrências'].map((name,i)=>({id:`investigation-${i}`,name,description:'',observations:'',attachments:[]}));
+  data.pedidos.forEach((row,i)=>{row.createdBy=['Vendedor 01','Vendedor 02','Vendedor 03','Vendedor 04','Vendedor 05'][i%5];row.clientType=i%11===0?'CPF':data.familias.find(family=>family.id===row.familyId)?.partner?'Parceria':'CNPJ';});
   return data;
 }

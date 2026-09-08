@@ -10,7 +10,7 @@ try{
   assert.equal(await page.locator('#dashboardView').isVisible(),false);
   await page.getByRole('button',{name:'Explorar demonstração'}).click();await page.getByRole('heading',{name:'Dashboard',exact:true}).waitFor();
   await page.screenshot({path:'artifacts/dashboard-desktop.png',fullPage:true});
-  const tabs=['Pedidos','Lavagem','Avisos','Ações','Divulgações','Docs','Famílias e valores','Investigativa','Usuários','Cargos','Cidades','Famílias','Responsáveis','Produtos','Materiais','Preços por cidade','Configurar ações'];
+  const tabs=['Pedidos','Lavagem','Avisos','Ações','Famílias e valores','Investigativa','Usuários','Cargos','Cidades','Famílias','Responsáveis','Produtos','Materiais','Preços por cidade','Configurar ações'];
   for(const tab of tabs){await page.getByRole('link',{name:tab,exact:true}).click();await page.getByRole('heading',{name:tab==='Lavagem'?'Lavagem de dinheiro':tab,exact:true}).waitFor();}
   await page.getByRole('link',{name:'Famílias',exact:true}).click();await page.getByRole('button',{name:'Nova família',exact:true}).click();await page.getByLabel('Nome',{exact:true}).fill('Família de teste');await page.getByLabel('Família parceira',{exact:true}).check();await page.getByRole('button',{name:'Salvar',exact:true}).click();await page.getByRole('cell',{name:'Família de teste',exact:true}).waitFor();
   await page.getByRole('searchbox').fill('Família de teste');assert.equal(await page.locator('tbody tr').count(),1);
@@ -25,5 +25,5 @@ try{
   await page.setViewportSize({width:390,height:844});await expect.poll(()=>page.locator('#sidebar').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(0);await page.screenshot({path:'artifacts/dashboard-mobile.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.getByRole('button',{name:'Alternar navegação'}).click();await page.getByRole('link',{name:'Pedidos',exact:true}).click();await expect.poll(()=>page.locator('#sidebar').evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(0);await page.screenshot({path:'artifacts/pedidos-mobile.png',fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   await page.getByRole('button',{name:'Alternar navegação'}).click();await page.getByRole('button',{name:'Sair',exact:true}).click();await page.getByRole('heading',{name:'ACESSO RESTRITO'}).waitFor();assert.deepEqual(errors,[]);
-  console.log('PASS: login sem bypass, 17 abas, criar/editar/excluir, busca, concluir/criar pedido, cidade, persistência, filtros, desktop, mobile e logout. Sem erros de JavaScript.');
+  console.log('PASS: login sem bypass, 15 abas, criar/editar/excluir, busca, concluir/criar pedido, cidade, persistência, filtros, desktop, mobile e logout. Sem erros de JavaScript.');
 }finally{await browser.close();}

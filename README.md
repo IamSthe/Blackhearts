@@ -1,13 +1,15 @@
 # Blackhearts — sistema interno
 
-Interface preta baseada nas referências, com dashboard, pedidos, lavagem (roleplay), avisos, ações, Wiki e cadastros. O emblema em `assets/brand.svg` é provisório: o brasão original não foi incluído no repositório.
+Interface preta baseada nas referências, com dashboard, pedidos, lavagem (roleplay), avisos, ações, Wiki e cadastros. A logo original enviada está em `assets/blackhearts-logo.png`, preservada sem alteração do arquivo; o CSS a exibe em branco no fundo escuro.
 
 ## O que funciona
 
-- Navegação entre 18 páginas; menu recolhível e layout para celular.
+- Navegação entre 16 páginas; menu recolhível e layout para celular.
 - Cadastro, edição e exclusão; busca, filtros, seleção de cidade, pedidos com conclusão e cálculo de materiais.
 - Indicadores e gráficos calculados a partir dos pedidos. Receita usa pedidos concluídos; líquido é receita menos comissão, não confirmação de depósito bancário.
-- Wiki com Divulgações, Docs, Famílias e valores e Investigativa.
+- Gráficos adicionais: receita por tipo de cliente, ranking de vendedores, top famílias e pedidos por status. Todos respeitam cidade e período. Vendedor é o autor do pedido; pedidos antigos sem tipo usam a parceria da família, ou CPF quando não há família. O campo Tipo de cliente permite selecionar CNPJ, Parceria ou CPF nos novos pedidos.
+- Wiki com apenas Famílias e valores e Investigativa, cada uma reunindo categorias expansíveis em uma página. Docs e Divulgações foram removidas. Registros antigos dessas abas não são apagados do banco, mas não são expostos pela aplicação.
+- Investigativa permite observações e até cinco anexos por categoria, com upload, download e remoção. PNG, JPG, WebP, PDF e TXT de até 2 MB por arquivo, com total de 6 MB por categoria. O backend persiste os arquivos no SQLite; na demonstração, o limite total de armazenamento depende do navegador. Arquivos são baixados sem execução inline. Notas e anexos não vão para o GitHub.
 - Demonstração com dados fictícios, separada do ambiente autenticado, persistida em `localStorage` no navegador. Não use a demonstração para dados reais: ela é pública e não é um sistema compartilhado.
 - Backend Node/SQLite com OAuth2 Discord, pré-cadastro por ID, usuários ativos, sessões de oito horas, logout, cargos e permissões de escrita verificadas no servidor.
 
