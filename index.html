@@ -3,125 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Blackhearts RP - Wiki e documentos da organização.">
-  <title>Blackhearts | Wiki</title>
+  <meta name="description" content="Blackhearts - sistema interno de gestao.">
+  <title>Blackhearts | Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="page-shell">
+  <div class="app" id="dashboardView">
     <aside class="sidebar" id="sidebar">
-      <div class="brand-lockup">
-        <div class="crest" aria-hidden="true">BH</div>
-        <div>
-          <p class="brand-name">Blackhearts</p>
-          <p class="brand-subtitle">Dal 1920 · Sistema interno</p>
-        </div>
-      </div>
-
-      <div class="sidebar-rule"><span>✦</span></div>
-
-      <nav class="nav-groups" aria-label="Navegação principal">
-        <div class="nav-group">
-          <p class="nav-label">Visão geral</p>
-          <a class="nav-link active" href="#inicio" data-section="inicio"><span class="nav-icon">◈</span> Início</a>
-          <a class="nav-link" href="#historia" data-section="historia"><span class="nav-icon">◌</span> Nossa história</a>
-        </div>
-        <div class="nav-group">
-          <p class="nav-label">Operações</p>
-          <a class="nav-link" href="#conduta" data-section="conduta"><span class="nav-icon">✧</span> Código de conduta</a>
-          <a class="nav-link" href="#hierarquia" data-section="hierarquia"><span class="nav-icon">♜</span> Hierarquia</a>
-          <a class="nav-link" href="#procedimentos" data-section="procedimentos"><span class="nav-icon">▤</span> Procedimentos</a>
-        </div>
-        <div class="nav-group">
-          <p class="nav-label">Referências</p>
-          <a class="nav-link" href="#comunicacao" data-section="comunicacao"><span class="nav-icon">⌁</span> Comunicação</a>
-          <a class="nav-link" href="#faq" data-section="faq"><span class="nav-icon">?</span> Perguntas frequentes</a>
-        </div>
+      <div class="sidebar-brand"><span class="brand-mark">♜</span><div><strong>BLACKHEARTS</strong><small>DAL 1920 · SISTEMA INTERNO</small></div></div>
+      <div class="sidebar-section-title">NAVEGACAO</div>
+      <nav class="side-nav" aria-label="Navegacao">
+        <a class="side-link active" href="#dashboard"><span>▦</span> Dashboard</a>
+        <a class="side-link" href="#pedidos"><span>▤</span> Pedidos</a>
+        <a class="side-link" href="#lavagem"><span>▰</span> Lavagem</a>
+        <a class="side-link" href="#avisos"><span>▧</span> Avisos</a>
+        <a class="side-link" href="#acoes"><span>⚒</span> Acoes</a>
+        <a class="side-link has-chevron" href="#wiki"><span>▤</span> Wiki <b>⌄</b></a>
       </nav>
-
-      <div class="sidebar-footer">
-        <span class="status-dot"></span>
-        <span>Sistema operacional</span>
-        <span class="footer-version">v1.0</span>
-      </div>
+      <div class="sidebar-section-title cadastro-title">CADASTROS <span>⌃</span></div>
+      <nav class="side-nav sub-nav" aria-label="Cadastros">
+        <a class="side-link" href="#usuarios"><span>♙</span> Usuarios</a>
+        <a class="side-link" href="#cargos"><span>♢</span> Cargos</a>
+        <a class="side-link" href="#cidades"><span>⌾</span> Cidades</a>
+        <a class="side-link" href="#familias"><span>♙</span> Familias</a>
+        <a class="side-link" href="#responsaveis"><span>♙</span> Responsaveis</a>
+        <a class="side-link" href="#produtos"><span>◇</span> Produtos</a>
+        <a class="side-link" href="#materiais"><span>⬡</span> Materiais</a>
+        <a class="side-link" href="#precos"><span>$</span> Precos por cidade</a>
+        <a class="side-link" href="#configurar"><span>⚒</span> Configurar acoes</a>
+      </nav>
+      <div class="user-card"><div class="user-avatar">SD</div><div><strong>Sakai Devoki #2079</strong><button id="logoutButton">↪ &nbsp;Sair</button></div></div>
     </aside>
 
-    <main class="main-content">
-      <header class="topbar">
-        <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-        <div class="breadcrumb"><span>Blackhearts</span><b>/</b><strong id="breadcrumbCurrent">Wiki</strong></div>
-        <div class="topbar-actions">
-          <button class="icon-button" id="themeToggle" aria-label="Alternar contraste" title="Alternar contraste">◐</button>
-          <a class="discord-link" href="https://discord.com" target="_blank" rel="noreferrer"><span>●</span> Discord</a>
-        </div>
-      </header>
-
-      <div class="content-wrap">
-        <section class="hero" id="inicio" data-content="inicio">
-          <div class="eyebrow">Arquivo interno <span>✦</span> Atualizado em 08.09.2026</div>
-          <h1>Conheça o código<br><em>Blackhearts.</em></h1>
-          <p class="hero-copy">Um arquivo vivo para quem carrega o nome, protege a família e entende que toda escolha deixa uma marca.</p>
-          <div class="hero-rule"><span>✦</span></div>
+    <main class="main-area">
+      <header class="topbar"><button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">☰</button><div class="topbar-brand"><span class="brand-mark">♜</span><div><strong>BLACKHEARTS</strong><small>DAL 1920 · SISTEMA INTERNO</small></div></div><button class="city-select" id="citySelect">⌾ <span>Cidade dos anjos</span>⌄</button></header>
+      <div class="page-content">
+        <div class="page-heading"><div><h1>Dashboard</h1><p>Dados gerais de venda - Cidade dos anjos</p></div><div class="filters"><button>Criação <span>⌄</span></button><button>▣ &nbsp;09/08/26 - 09/09/26</button><button class="clear-filter">×</button><button>7 dias</button><button>30 dias</button><button>90 dias</button></div></div>
+        <section class="metric-grid" id="dashboard" aria-label="Indicadores">
+          <article class="metric-card"><div><span>Receita total</span><strong>R$ 55.287.000</strong></div><i>$</i></article>
+          <article class="metric-card"><div><span>Pedidos</span><strong>54</strong></div><i>⌑</i></article>
+          <article class="metric-card"><div><span>Concluidos</span><strong>48</strong></div><i>◷</i></article>
+          <article class="metric-card"><div><span>Ticket medio</span><strong>R$ 1.151.813</strong></div><i>⌁</i></article>
+          <article class="metric-card"><div><span>Comissao total</span><strong>R$ 2.696.850</strong></div><i>▣</i></article>
+          <article class="metric-card"><div><span>Depositado</span><strong>R$ 51.240.150</strong></div><i>♜</i></article>
+          <article class="metric-card"><div><span>Taxa conclusao</span><strong>89%</strong></div><i>◎</i></article>
+          <article class="metric-card"><div><span>Tempo medio entrega</span><strong>2d 3h</strong></div><i>◷</i></article>
         </section>
-
-        <section class="search-panel" aria-label="Buscar na wiki">
-          <div class="search-icon">⌕</div>
-          <input id="searchInput" type="search" placeholder="Buscar na wiki..." autocomplete="off">
-          <kbd>⌘ K</kbd>
-          <div class="search-results" id="searchResults"></div>
+        <section class="chart-grid">
+          <article class="panel chart-panel"><div class="panel-heading"><div><h2>Evolucao no tempo</h2><p>Receita e pedidos por dia</p></div></div><div class="line-chart"><div class="y-labels"><span>12.0M</span><span>9.0M</span><span>6.0M</span><span>3.0M</span><span>0</span></div><div class="chart-area"><div class="grid-lines"></div><svg viewBox="0 0 600 230" preserveAspectRatio="none" aria-label="Grafico de evolucao"><polyline class="blue-line" points="0,205 14,170 27,211 40,190 54,85 68,150 82,120 96,206 110,220 124,220 138,120 152,220 166,70 180,170 194,180 208,150 222,220 236,190 250,220 264,140 278,220 292,180 306,208 320,220 334,160 348,220 362,220 376,175 390,220 404,185 418,220 432,135 446,220 460,178 474,220 488,160 502,220 516,190 530,200 544,220 558,190 572,220 590,175"></polyline><polyline class="green-line" points="0,215 14,185 27,220 40,200 54,175 68,200 82,170 96,220 110,220 124,220 138,170 152,220 166,45 180,150 194,175 208,195 222,220 236,210 250,220 264,180 278,220 292,210 306,190 320,220 334,175 348,220 362,205 376,200 390,220 404,200 418,218 432,168 446,215 460,190 474,195 488,140 502,180 516,180 530,175 544,170 558,220 572,205 590,220"></polyline></svg><div class="x-labels"><span>8/8</span><span>10/8</span><span>12/8</span><span>14/8</span><span>16/8</span><span>18/8</span><span>20/8</span><span>22/8</span><span>24/8</span><span>26/8</span><span>28/8</span><span>30/8</span><span>1/9</span><span>3/9</span><span>5/9</span><span>7/9</span></div></div></div></article>
+          <article class="panel chart-panel"><div class="panel-heading"><div><h2>Vendas por produto</h2><p>Receita por produto no periodo</p></div></div><div class="bar-chart"><div class="bar-label">M16</div><div class="bar-track"><div class="bar-fill"></div></div><div class="bar-axis"><span>0</span><span>20.0M</span><span>40.0M</span><span>60.0M</span><span>80.0M</span></div></div></article>
         </section>
-
-        <section class="section-block" id="historia" data-content="historia">
-          <div class="section-heading">
-            <div><p class="eyebrow">O começo de tudo</p><h2>A casa antes do nome</h2></div>
-            <span class="section-number">01</span>
-          </div>
-          <div class="story-grid">
-            <p class="lead-text">Em 1920, lealdade não era uma palavra bonita. Era uma moeda. A Blackhearts nasceu entre portos, fumaça e acordos selados longe dos olhos certos.</p>
-            <div class="body-copy"><p>O que começou como uma pequena aliança de sobrevivência se tornou uma casa com seus próprios ritos, códigos e linguagem. Novos tempos mudaram as ruas, mas não mudaram aquilo que mantém o grupo unido.</p><p>Esta wiki reúne o essencial para que cada membro encontre seu lugar e mova-se com precisão.</p></div>
-          </div>
-        </section>
-
-        <section class="section-block compact-section" id="conduta" data-content="conduta">
-          <div class="section-heading"><div><p class="eyebrow">O que nos mantém de pé</p><h2>Código de conduta</h2></div><span class="section-number">02</span></div>
-          <div class="cards-grid">
-            <article class="info-card"><span class="card-index">I</span><h3>Lealdade</h3><p>O nome vem antes do ego. Decisões individuais nunca colocam a família em risco.</p></article>
-            <article class="info-card"><span class="card-index">II</span><h3>Discrição</h3><p>Informação é responsabilidade. O que acontece dentro permanece dentro.</p></article>
-            <article class="info-card"><span class="card-index">III</span><h3>Presença</h3><p>Respeito se demonstra com atitude, pontualidade e disposição para agir.</p></article>
-          </div>
-        </section>
-
-        <section class="section-block compact-section" id="hierarquia" data-content="hierarquia">
-          <div class="section-heading"><div><p class="eyebrow">Cada função tem seu peso</p><h2>Hierarquia</h2></div><span class="section-number">03</span></div>
-          <div class="rank-list">
-            <div class="rank-row"><span>01</span><strong>Don</strong><p>A palavra final e a visão de longo prazo.</p><b>●</b></div>
-            <div class="rank-row"><span>02</span><strong>Consigliere</strong><p>Estratégia, conselho e mediação.</p><b>●●</b></div>
-            <div class="rank-row"><span>03</span><strong>Caporegime</strong><p>Coordenação das frentes e dos membros.</p><b>●●●</b></div>
-            <div class="rank-row"><span>04</span><strong>Soldato</strong><p>Disciplina, presença e execução.</p><b>●●●●</b></div>
-          </div>
-        </section>
-
-        <section class="section-block split-section" id="procedimentos" data-content="procedimentos">
-          <div class="section-heading"><div><p class="eyebrow">Antes de sair às ruas</p><h2>Procedimentos</h2></div><span class="section-number">04</span></div>
-          <div class="procedure-list">
-            <a href="#comunicacao"><span>01</span><div><strong>Entrada e apresentação</strong><small>O primeiro contato define tudo.</small></div><b>↗</b></a>
-            <a href="#conduta"><span>02</span><div><strong>Regras de operação</strong><small>Leia antes de assumir qualquer função.</small></div><b>↗</b></a>
-            <a href="#faq"><span>03</span><div><strong>Checklist do membro</strong><small>O básico que nunca pode faltar.</small></div><b>↗</b></a>
-          </div>
-        </section>
-
-        <section class="bottom-grid">
-          <div class="section-block mini-section" id="comunicacao" data-content="comunicacao"><p class="eyebrow">Linha aberta</p><h2>Comunicação</h2><p>Use os canais oficiais para registrar movimentações, pedir suporte e manter a operação sincronizada.</p><a class="text-link" href="https://discord.com" target="_blank" rel="noreferrer">Abrir Discord <span>↗</span></a></div>
-          <div class="section-block mini-section" id="faq" data-content="faq"><p class="eyebrow">Dúvidas comuns</p><h2>Perguntas frequentes</h2><details><summary>Como faço para entrar?</summary><p>Entre no Discord oficial e aguarde a triagem de um responsável.</p></details><details><summary>Onde encontro atualizações?</summary><p>As alterações importantes aparecem no canal de comunicados.</p></details></div>
-        </section>
-
-        <footer class="site-footer"><span>BLACKHEARTS · DAL 1920</span><span>OMERTÀ <i>✦</i> FAMIGLIA <i>✦</i> ONORE</span></footer>
       </div>
     </main>
   </div>
-  <script src="script.js"></script>
-</body>
-</html>
+  <section class="login-view" id="loginView" hidden><div class="login-inner"><div class="login-crest">♜</div><h1>BLACKHEARTS</h1><p>DAL 1920 · SISTEMA INTERNO</p><div class="ornament"><span></span>✦<span></span></div><div class="login-card"><h2>ACESSO RESTRITO</h2><p>Use sua conta Discord para acessar. Seu usuario deve estar pre-cadastrado.</p><button id="discordLogin">◉ &nbsp; Entrar com Discord</button></div><small>ACESSO RESTRITO · OMERTA</small></div></section>
++  <script src="script.js"></script>
++</body>
++</html>
