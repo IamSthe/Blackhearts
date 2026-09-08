@@ -17,7 +17,7 @@ export const schemas = {
   materiais: { title:'Materiais',singular:'material',add:'Novo material',description:'Materiais utilizados na produção',fields:[name,f('quantity','Quantidade em estoque','number',{min:0}),f('unit','Unidade'),note] },
   precos: { title:'Preços por cidade',singular:'preço',add:'Novo preço',description:'Valores de venda por produto e perfil de cliente',fields:[f('productId','Produto','select',{source:'produtos'}),city,f('normal','Cliente normal (R$)','number',{min:0}),f('partner','Família parceira (R$)','number',{min:0}),f('solo','Sem família (R$)','number',{min:0})] },
   configurar: { title:'Configurar ações',singular:'tipo de ação',add:'Novo tipo de ação',description:'Tipos de atividades disponíveis para agendamento',fields:[name,f('participants','Participantes','number',{min:1,step:1}),note] },
-  valores: { title:'Famílias e valores',singular:'categoria',add:'Nova categoria',description:'Expanda uma categoria para consultar os acordos e valores',fields:[f('name','Categoria'),f('description','Conteúdo','textarea',{required:false})] },
+  valores: { title:'Famílias e valores',singular:'categoria',add:'Nova categoria',description:'Organize categorias por cores e subcategorias',fields:[f('name','Categoria'),f('color','Cor da categoria','color'),f('subcategories','Subcategorias','subcategories',{required:false})] },
   investigativa: { title:'Investigativa',singular:'categoria',add:'Nova categoria',description:'Categorias com observações e anexos de investigação',fields:[f('name','Categoria'),f('description','Descrição','textarea',{required:false}),f('observations','Observações','textarea',{required:false}),f('attachments','Anexos','attachments',{required:false})] }
 };
 schemas.pedidos.fields.splice(3,0,f('clientType','Tipo de cliente','select',{required:false,options:['CNPJ','Parceria','CPF']}));
@@ -36,6 +36,14 @@ export function validate(entity, input, data) {
   for (const field of schema.fields) {
     let value = input[field.key];
     if (field.type === 'attachments') { result[field.key] = validateAttachments(value); continue; }
+    if (field.type === 'subcategories') {
+      if (!Array.isArray(value)) throw new Error('Subcategorias: formato inválido.');
+      result[field.key] = value.map(item => {
+        if (!item || typeof item.id !== 'string' || typeof item.name !== 'string' || typeof item.icon !== 'string' || typeof item.observations !== 'string' || item.name.trim().length < 1 || item.name.length > 200 || item.observations.length > 10000) throw new Error('Subcategoria inválida.');
+        return { id:item.id, name:item.name.trim(), icon:item.icon.slice(0,16), observations:item.observations, attachments:validateAttachments(item.attachments || []) };
+      });
+      continue;
+    }
     if (field.type === 'checkbox') { result[field.key] = value === true; continue; }
     if (field.type === 'permissions') {
       if (!Array.isArray(value) || value.some(item => !editableEntities.includes(item))) throw new Error('Permissões inválidas.');
