@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Blackhearts — sistema interno de gestão para roleplay."><meta name="referrer" content="no-referrer">
-  <title>Blackhearts | Sistema interno</title><link rel="icon" href="assets/brand.svg" type="image/svg+xml"><link rel="stylesheet" href="styles.css?v=2">
+  <title>Blackhearts | Sistema interno</title><link rel="icon" href="assets/blackhearts-logo.png" type="image/png"><link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
   <section class="login-view" id="loginView"><div class="login-inner">
-    <img class="login-crest" src="assets/brand.svg" alt="Emblema Blackhearts" width="80" height="100">
+    <img class="login-crest" src="assets/blackhearts-logo.png" alt="Logo Blackhearts" width="116" height="116">
     <h1>BLACKHEARTS</h1><p>DAL 1920 · SISTEMA INTERNO</p><div class="ornament" aria-hidden="true"><span></span>✦<span></span></div>
     <div class="login-card"><h2>ACESSO RESTRITO</h2><p>Use sua conta Discord para acessar.<br>Seu usuário deve estar pré-cadastrado.</p>
       <button id="discordLogin" class="discord-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M19.7 5.2a18 18 0 0 0-4.4-1.4l-.5 1a16 16 0 0 0-5.6 0l-.5-1a18 18 0 0 0-4.4 1.4C1.5 9.4.7 13.5 1.1 17.5a18 18 0 0 0 5.4 2.7l1.1-1.8-1.7-.8.4-.3a13 13 0 0 0 11.4 0l.4.3-1.7.8 1.1 1.8a18 18 0 0 0 5.4-2.7c.5-4.7-.8-8.8-3.2-12.3ZM8.5 14.8c-1 0-1.8-1-1.8-2.2s.8-2.2 1.8-2.2 1.8 1 1.8 2.2-.8 2.2-1.8 2.2Zm7 0c-1 0-1.8-1-1.8-2.2s.8-2.2 1.8-2.2 1.8 1 1.8 2.2-.8 2.2-1.8 2.2Z"/></svg>Entrar com Discord</button>
@@ -15,13 +15,13 @@
     </div><button class="preview-button" id="previewButton">Explorar demonstração <span aria-hidden="true">↗</span></button><small>ACESSO RESTRITO · OMERTÀ</small>
   </div></section>
   <div id="dashboardView" class="app" hidden>
-    <header class="topbar"><div class="brand"><img src="assets/brand.svg" alt="" width="31" height="40"><div><strong>BLACKHEARTS</strong><small>DAL 1920 · SISTEMA INTERNO</small></div></div><div class="topbar-actions"><span id="modeLabel"></span><label class="city-picker"><span aria-hidden="true">⌖</span><select id="citySelect" aria-label="Cidade"></select></label></div></header>
+    <header class="topbar"><div class="brand"><img src="assets/blackhearts-logo.png" alt="" width="31" height="40"><div><strong>BLACKHEARTS</strong><small>DAL 1920 · SISTEMA INTERNO</small></div></div><div class="topbar-actions"><span id="modeLabel"></span><label class="city-picker"><span aria-hidden="true">⌖</span><select id="citySelect" aria-label="Cidade"></select></label></div></header>
     <button id="menuToggle" class="menu-toggle" aria-label="Alternar navegação" aria-controls="sidebar" aria-expanded="true">◫</button>
     <aside id="sidebar" class="sidebar"><div class="nav-scroll"><p class="sidebar-section-title">NAVEGAÇÃO</p><nav id="navigation" aria-label="Navegação principal"></nav></div><div class="user-card"><span class="user-avatar" id="userAvatar">BH</span><div><strong id="userName"></strong><button id="logoutButton" aria-label="Sair">↪ Sair</button></div></div></aside>
     <main class="main-area" id="main"><div class="demo-banner" id="demoBanner" hidden>Demonstração · dados fictícios salvos apenas neste navegador.<button id="resetDemo">Restaurar dados</button></div><div class="page-content" id="pageContent"></div></main>
   </div>
   <dialog id="editor"><form id="editorForm"><div class="dialog-heading"><h2 id="editorTitle"></h2><button type="button" id="closeEditor" class="icon-button" aria-label="Fechar formulário">×</button></div><div id="editorFields" class="form-fields"></div><p id="formError" class="form-error" role="alert"></p><div class="dialog-footer"><button type="submit" class="button primary" id="saveButton">Salvar</button></div></form></dialog>
   <dialog id="confirmDialog"><div class="dialog-heading"><h2 id="confirmTitle">Confirmar exclusão</h2></div><p id="confirmMessage"></p><div class="dialog-footer"><button class="button" id="cancelConfirm">Cancelar</button><button class="button danger" id="acceptConfirm">Excluir</button></div></dialog>
-  <div id="toast" role="status" hidden></div><script src="config.js?v=2"></script><script type="module" src="script.js?v=2"></script>
+  <div id="toast" role="status" hidden></div><script src="config.js?v=3"></script><script type="module" src="script.js?v=3"></script>
 </body>
 </html>

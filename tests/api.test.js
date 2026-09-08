@@ -20,6 +20,13 @@ test('OAuth: pré-cadastro, state, vínculo ao navegador, sessão e permissões'
     assert.equal((await request('/auth/exchange','POST',{code:auth.code,verifier:auth.start.verifier})).status,401);
     const initial=await(await request('/api/data','GET',null,token)).json();assert.equal(initial.user.admin,true);assert.equal(initial.data.pedidos.length,0);
     const city=await(await request('/api/cidades','POST',{name:'Cidade teste',description:''},token)).json();assert.ok(city.record.id);
+    const attachmentText='a'.repeat(70000);
+    const attachment={id:'attachment-test',name:'evidencia.txt',type:'text/plain',size:attachmentText.length,data:'data:text/plain;base64,'+Buffer.from(attachmentText).toString('base64')};
+    const categoryResponse=await request('/api/investigativa','POST',{name:'Veículos',description:'',observations:'Observação persistida',attachments:[attachment]},token);
+    assert.equal(categoryResponse.status,201);
+    const category=(await categoryResponse.json()).record;
+    const savedCategory=(await(await request('/api/data','GET',null,token)).json()).data.investigativa.find(row=>row.id===category.id);
+    assert.equal(savedCategory.observations,'Observação persistida');assert.deepEqual(savedCategory.attachments,[attachment]);
     const role=await(await request('/api/cargos','POST',{name:'Leitura',permissions:[]},token)).json();
     const memberId='100000000000000002';const member=await(await request('/api/usuarios','POST',{name:'Membro teste',discordId:memberId,discordName:'member',email:'',roleId:role.record.id,cityId:city.record.id,active:true,admin:false},token)).json();assert.ok(member.record.id);
     assert.equal((await request(`/api/cidades/${city.record.id}`,'DELETE',null,token)).status,409);
@@ -27,6 +34,7 @@ test('OAuth: pré-cadastro, state, vínculo ao navegador, sessão e permissões'
     assert.equal((await request('/api/cargos','POST',{name:'Inválido',permissions:['usuarios']},token)).status,400);
     profileId=memberId;const memberAuth=await login();const memberToken=(await(await request('/auth/exchange','POST',{code:memberAuth.code,verifier:memberAuth.start.verifier})).json()).token;
     assert.equal((await request('/api/cidades','POST',{name:'Não autorizado'},memberToken)).status,403);
+    assert.equal((await request(`/api/investigativa/${category.id}`,'PUT',{...category,attachments:[]},memberToken)).status,403);
     const memberData=await(await request('/api/data','GET',null,memberToken)).json();assert.deepEqual(memberData.data.usuarios,[]);
     await request(`/api/usuarios/${member.record.id}`,'PUT',{...member.record,active:false},token);
     assert.equal((await request('/api/data','GET',null,memberToken)).status,401);
