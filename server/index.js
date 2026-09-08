@@ -1,0 +1,11 @@
+import { mkdirSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { createApp } from './app.js';
+const database=resolve(process.env.DATABASE_PATH || 'data/blackhearts.sqlite');mkdirSync(dirname(database),{recursive:true});
+const port=Number(process.env.PORT || 3000);
+const frontendUrl=process.env.FRONTEND_URL || 'http://127.0.0.1:4173/';
+const apiUrl=(process.env.API_URL || `http://127.0.0.1:${port}`).replace(/\/$/,'');
+if(process.env.NODE_ENV==='production'&&(!frontendUrl.startsWith('https://')||!apiUrl.startsWith('https://')))throw new Error('Configure FRONTEND_URL e API_URL com HTTPS.');
+const app=createApp({database,frontendUrl,apiUrl,clientId:process.env.DISCORD_CLIENT_ID,clientSecret:process.env.DISCORD_CLIENT_SECRET,adminDiscordId:process.env.ADMIN_DISCORD_ID});
+app.server.listen(port,'0.0.0.0',()=>console.log(`Blackhearts API na porta ${port}`));
+process.on('SIGTERM',()=>app.close().then(()=>process.exit(0)));
