@@ -1,7 +1,12 @@
-import { mkdir, cp, rm } from 'node:fs/promises';
+import { mkdir, cp, rm, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { publicApiUrl, verifyAuthService } from './auth-config.js';
+const apiBaseUrl=publicApiUrl(process.env.BLACKHEARTS_API_URL);
+if(process.env.VERIFY_AUTH_SERVICE==='true'&&apiBaseUrl)await verifyAuthService(apiBaseUrl,process.env.FRONTEND_URL || 'https://iamsthe.github.io/Blackhearts/');
 const destination=resolve('dist');
 if(destination!==resolve(process.cwd(),'dist'))throw new Error('Destino inválido.');
 await rm(destination,{recursive:true,force:true});await mkdir(destination,{recursive:true});
 for(const file of ['index.html','styles.css','script.js','config.js','demo.js','charts.js','assets','shared'])await cp(file,`${destination}/${file}`,{recursive:true});
+if(apiBaseUrl)await writeFile(`${destination}/config.js`,`// Configuração pública gerada na publicação.\nwindow.BLACKHEARTS_CONFIG = Object.freeze(${JSON.stringify({apiBaseUrl,allowDemo:true})});\n`);
+else console.warn('Discord não ativado: defina BLACKHEARTS_API_URL nas variáveis do repositório quando o backend estiver configurado.');
 console.log('Frontend gerado em dist/ (sem backend, banco ou credenciais).');
