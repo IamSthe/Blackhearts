@@ -34,6 +34,10 @@ jobs:
         run: npm test
       - name: Build static site
         run: npm run build
+        env:
+          BLACKHEARTS_API_URL: ${{ vars.BLACKHEARTS_API_URL }}
+          VERIFY_AUTH_SERVICE: 'true'
+          FRONTEND_URL: https://iamsthe.github.io/Blackhearts/
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:

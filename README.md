@@ -44,13 +44,19 @@ As capturas de desktop e celular ficam em `artifacts/`. Os testes do backend usa
 1. Hospede `server/index.js` em um serviço Node com HTTPS e disco persistente. Comando: `npm start`. Configure as variáveis de `.env.example` pelo painel do provedor (o servidor não lê `.env` automaticamente).
 2. No [Discord Developer Portal](https://discord.com/developers/applications), crie ou selecione o aplicativo Blackhearts. Cadastre em OAuth2 a URL exata `https://SEU-BACKEND/auth/callback`.
 3. No backend, configure `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `ADMIN_DISCORD_ID` (ID numérico do primeiro administrador), `FRONTEND_URL=https://iamsthe.github.io/Blackhearts/`, `API_URL` e `DATABASE_PATH` apontando para o disco persistente. Nunca publique o secret no repositório ou no JavaScript da página.
-4. Em `config.js`, preencha apenas `apiBaseUrl` com a URL pública HTTPS do backend. Opcionalmente use `allowDemo: false` para ocultar a demonstração.
+4. No repositório **IamSthe/Blackhearts**, abra **Settings → Secrets and variables → Actions → Variables → New repository variable**. Crie `BLACKHEARTS_API_URL` com somente a origem HTTPS do backend (exemplo de formato: `https://seu-servico.example.com`, sem `/auth/callback`). Em **Actions → Deploy to GitHub Pages → Run workflow**, publique novamente. O build gera `dist/config.js` com essa URL pública e verifica `/health`, configuração do Discord e CORS antes de publicar. Credenciais ficam somente nas variáveis do backend. Para uso local, `config.js` continua aceitando `apiBaseUrl` manual; a variável de build tem prioridade quando definida.
 5. Entre com o Discord do administrador. Cadastre cidades e cargos, depois usuários com seus IDs numéricos. O primeiro visitante não vira administrador; somente o ID explicitamente configurado recebe esse acesso inicial.
 6. Valide com uma conta autorizada e outra não cadastrada, e confira a tela anônima em uma janela anônima.
 
 O banco começa vazio, com apenas o administrador inicial. Não há importação de nomes, e-mails ou contatos pessoais das imagens. Pedidos atualmente têm um produto e uma quantidade por registro; registre produtos distintos em pedidos separados. O painel sincroniza com o backend a cada 30 segundos. Mantenha uma única instância do backend (estados OAuth pendentes em memória) e faça backup do disco SQLite. Reiniciar o serviço pode exigir reiniciar um login pendente.
 
 Referência oficial: [OAuth2 do Discord](https://docs.discord.com/developers/topics/oauth2).
+
+### Mensagem “A entrada pelo Discord aguarda a configuração”
+
+Essa mensagem indica que o `config.js` publicado contém `apiBaseUrl` vazio. Mesclar apenas o código de autenticação não ativa o serviço: GitHub Pages não executa `server/index.js`. Complete os passos acima, incluindo a hospedagem do backend e a variável `BLACKHEARTS_API_URL`, e execute a publicação. O Client Secret não deve ser colocado em variáveis públicas do frontend nem no GitHub Pages.
+
+A verificação de publicação confirma a disponibilidade e a configuração declarada pelo backend; a confirmação final exige autorizar uma conta Discord pré-cadastrada no navegador. Credenciais incorretas no Discord ainda podem impedir a autorização, mesmo com `/health` positivo.
 
 ## GitHub Pages existente
 
